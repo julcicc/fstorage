@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+
+	<title>Class FStorage\API_Client</title>
+
+	<link rel="stylesheet" href="resources/style.css?e99947befd7bf673c6b43ff75e9e0f170c88a60e">
+
+</head>
+
+<body>
+<div id="left">
+	<div id="menu">
+		<a href="index.html" title="Overview"><span>Overview</span></a>
+
+
+		<div id="groups">
+				<h3>Namespaces</h3>
+			<ul>
+				<li class="active">
+					<a href="namespace-FStorage.html">
+						FStorage					</a>
+
+						</li>
+			</ul>
+		</div>
+
+		<hr>
+
+
+		<div id="elements">
+			<h3>Classes</h3>
+			<ul>
+				<li class="active"><a href="class-FStorage.API_Client.html">API_Client</a></li>
+				<li><a href="class-FStorage.API_Result.html">API_Result</a></li>
+				<li><a href="class-FStorage.Result_Buckets.html">Result_Buckets</a></li>
+				<li><a href="class-FStorage.Result_Objects.html">Result_Objects</a></li>
+			</ul>
+
+
+
+
+
+		</div>
+	</div>
+</div>
+
+<div id="splitter"></div>
+
+<div id="right">
+<div id="rightInner">
+	<form id="search">
+		<input type="hidden" name="cx" value="">
+		<input type="hidden" name="ie" value="UTF-8">
+		<input type="text" name="q" class="text" placeholder="Search">
+	</form>
+
+	<div id="navigation">
+		<ul>
+			<li>
+				<a href="index.html" title="Overview"><span>Overview</span></a>
+			</li>
+			<li>
+				<a href="namespace-FStorage.html" title="Summary of FStorage"><span>Namespace</span></a>
+			</li>
+			<li class="active">
+<span>Class</span>			</li>
+		</ul>
+		<ul>
+		</ul>
+		<ul>
+		</ul>
+	</div>
+
+<div id="content" class="class">
+	<h1>Class API_Client</h1>
+
+
+	<div class="description">
+	<p>Provides access to all public apis of FStorage server</p>
+	</div>
+
+
+
+
+
+
+
+
+
+	<div class="info">
+		
+		
+		<b>Namespace:</b> <a href="namespace-FStorage.html">FStorage</a><br>
+		
+
+			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#68-256" title="Go to source code">fstorage_client.php</a>
+		<br>
+	</div>
+
+
+
+	<table class="summary methods" id="methods">
+	<caption>Methods summary</caption>
+	<tr data-order="__construct" id="___construct">
+
+		<td class="attributes"><code>
+			 public 
+
+			
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#___construct">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#85-97" title="Go to source code">__construct</a>( <span>string <var>$url</var></span>, <span>string <var>$user</var></span>, <span>string <var>$pass</var></span> )</code>
+
+		<div class="description short">
+			
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Initializes Client instance</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$url</var></dt>
+					<dd>URL of the server API e.g. http://localhost/fstorage/api.php</dd>
+					<dt><var>$user</var></dt>
+					<dd>User</dd>
+					<dt><var>$pass</var></dt>
+					<dd>Password</dd>
+				</dl></div>
+
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="noop" id="_noop">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_noop">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#175-184" title="Go to source code">noop</a>( )</code>
+
+		<div class="description short">
+			<p>Performs a NOOP against the server. Useful for checking connection</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Performs a NOOP against the server. Useful for checking connection</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>Text from the server
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="listBuckets" id="_listBuckets">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_listBuckets">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#186-195" title="Go to source code">listBuckets</a>( )</code>
+
+		<div class="description short">
+			<p>List all available buckets on the server</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>List all available buckets on the server</p>
+
+
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>An array of <code><a href="class-FStorage.Result_Buckets.html">FStorage\Result_Buckets</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="createBucket" id="_createBucket">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_createBucket">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#197-212" title="Go to source code">createBucket</a>( <span>string <var>$name</var></span>, <span>string <var>$description</var></span> )</code>
+
+		<div class="description short">
+			<p>Creates a new bucket</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Creates a new bucket</p>
+
+<p>Bucket names must contains only: letters, numbers, '_', and '-'</p>
+
+<p>If the bucket already exists an error is returned</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd>The name of the bucket</dd>
+					<dt><var>$description</var></dt>
+					<dd>Short description of bucket</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>The name of the new bucket
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="removeBucket" id="_removeBucket">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_removeBucket">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#214-226" title="Go to source code">removeBucket</a>( <span>string <var>$name</var></span> )</code>
+
+		<div class="description short">
+			<p>Removes a bucket</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Removes a bucket</p>
+
+<p>Bucket must be empty to perform this action</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$name</var></dt>
+					<dd>The name of the bucket to be deleted</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>Name of the removed bucket
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="listObjects" id="_listObjects">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_listObjects">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#228-239" title="Go to source code">listObjects</a>( <span>string <var>$bucket</var></span>, <span>string <var>$search</var></span> )</code>
+
+		<div class="description short">
+			<p>List all objects in a bucket</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>List all objects in a bucket</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$bucket</var></dt>
+					<dd>Bucket name</dd>
+					<dt><var>$search</var></dt>
+					<dd>Object key to search (non case sensitive). You can use '*' wildcard. Not recommended for large buckets</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>An array of <code><a href="class-FStorage.Result_Objects.html">FStorage\Result_Objects</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="putObject" id="_putObject">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_putObject">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#241-254" title="Go to source code">putObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$content</var></span> )</code>
+
+		<div class="description short">
+			<p>Put object (if object already exists it <strong>WILL be replaced</strong>)</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Put object (if object already exists it <strong>WILL be replaced</strong>)</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$bucket</var></dt>
+					<dd>Bucket name</dd>
+					<dt><var>$key</var></dt>
+					<dd>Object key (may contain / and other special characters, use at your own risk)</dd>
+					<dt><var>$contentType</var></dt>
+					<dd>Content-type (MIME)</dd>
+					<dt><var>$content</var></dt>
+					<dd>Object content</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>The new object <code><a href="class-FStorage.Result_Objects.html">FStorage\Result_Objects</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	</table>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</div>
+
+	<div id="footer">
+		 API documentation generated by <a href="http://apigen.org">ApiGen</a>
+	</div>
+</div>
+</div>
+<script src="resources/combined.js"></script>
+<script src="elementlist.js"></script>
+</body>
+</html>
