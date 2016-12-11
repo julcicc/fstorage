@@ -154,10 +154,6 @@ class API_Client {
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $header = substr($response, 0, $header_size);
         $body = substr($response, $header_size);
-        if ($debug) { 
-            var_dump($response);
-            die("END");
-        }
 
         if ($http_code!="200") {
             $obj = $this->error("HTTP_" . $http_code, trim(strip_tags($body)));
@@ -287,6 +283,6 @@ class API_Client {
         $this->setUploadOptions($ch, $size);
         $cfile = new \CURLFile($localFile, $contentType, $filename);
 		$this->setParams($ch, $this->getBasicParams("uploadObject", array("bucket"=>$bucket,"key"=>$key,"contentType"=>$contentType,"file"=>$cfile)));
-		return $this->getResult($ch,1);
+		return $this->getResult($ch);
 	}
 }

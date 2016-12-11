@@ -6,6 +6,15 @@ require($CLIENT_FILE);
 
 
 $client = new \FStorage\API_Client("http://localhost/~julian/fstorage/fstorage_server/api.php", "test", "test");
+
+//create test stuff
+$fname = "/tmp/fstorage-temp.txt";
+file_put_contents($fname,"Simple text file");
+
+$rand_name = "random_" . rand(1, 10000); 
+
+$client->removeBucket("dummy");
+$client->createBucket("dummy", "Test Bucket");
 ?>
 <html>
 <style>
@@ -93,9 +102,6 @@ var_dump($client->removeBucket("test_bucket"));
 </div>
 
 <h2>Remove Bucket (not exists)</h2>
-<? 
-$rand_name = "random_" . rand(1, 10000); 
-?>
 <code>
 $client-&gt;removeBucket("<?=$rand_name?>");
 </code>
@@ -144,10 +150,6 @@ var_dump($client->uploadObject("dummy", "path/to/my/file", "application/octet-st
 </div>
 
 <h2>Upload Object (simple file)</h2>
-<?php
-$fname = "/tmp/fstorage-temp.txt";
-file_put_contents($fname,"Simple text file");
-?>
 <code>
 $client-&gt;uploadObject("dummy", "/tmp/dummy.txt", "text/plain", "<?=$fname?>");
 </code>
