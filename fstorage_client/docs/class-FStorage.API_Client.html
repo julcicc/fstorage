@@ -95,7 +95,7 @@
 		<b>Namespace:</b> <a href="namespace-FStorage.html">FStorage</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#68-256" title="Go to source code">fstorage_client.php</a>
+			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#72-283" title="Go to source code">fstorage_client.php</a>
 		<br>
 	</div>
 
@@ -115,7 +115,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#___construct">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#85-97" title="Go to source code">__construct</a>( <span>string <var>$url</var></span>, <span>string <var>$user</var></span>, <span>string <var>$pass</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#89-101" title="Go to source code">__construct</a>( <span>string <var>$url</var></span>, <span>string <var>$user</var></span>, <span>string <var>$pass</var></span> )</code>
 
 		<div class="description short">
 			
@@ -154,7 +154,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_noop">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#175-184" title="Go to source code">noop</a>( )</code>
+		<code><a href="source-class-FStorage.API_Client.html#178-187" title="Go to source code">noop</a>( )</code>
 
 		<div class="description short">
 			<p>Performs a NOOP against the server. Useful for checking connection</p>
@@ -188,7 +188,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_listBuckets">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#186-195" title="Go to source code">listBuckets</a>( )</code>
+		<code><a href="source-class-FStorage.API_Client.html#189-198" title="Go to source code">listBuckets</a>( )</code>
 
 		<div class="description short">
 			<p>List all available buckets on the server</p>
@@ -222,7 +222,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_createBucket">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#197-212" title="Go to source code">createBucket</a>( <span>string <var>$name</var></span>, <span>string <var>$description</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#200-215" title="Go to source code">createBucket</a>( <span>string <var>$name</var></span>, <span>string <var>$description</var></span> )</code>
 
 		<div class="description short">
 			<p>Creates a new bucket</p>
@@ -267,7 +267,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_removeBucket">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#214-226" title="Go to source code">removeBucket</a>( <span>string <var>$name</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#217-229" title="Go to source code">removeBucket</a>( <span>string <var>$name</var></span> )</code>
 
 		<div class="description short">
 			<p>Removes a bucket</p>
@@ -308,7 +308,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_listObjects">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#228-239" title="Go to source code">listObjects</a>( <span>string <var>$bucket</var></span>, <span>string <var>$search</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#231-242" title="Go to source code">listObjects</a>( <span>string <var>$bucket</var></span>, <span>string <var>$search</var></span> )</code>
 
 		<div class="description short">
 			<p>List all objects in a bucket</p>
@@ -349,7 +349,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_putObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#241-254" title="Go to source code">putObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$content</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#244-257" title="Go to source code">putObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$content</var></span> )</code>
 
 		<div class="description short">
 			<p>Put object (if object already exists it <strong>WILL be replaced</strong>)</p>
@@ -369,6 +369,51 @@
 					<dd>Content-type (MIME)</dd>
 					<dt><var>$content</var></dt>
 					<dd>Object content</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>The new object <code><a href="class-FStorage.Result_Objects.html">FStorage\Result_Objects</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
+	<tr data-order="uploadObject" id="_uploadObject">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_uploadObject">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#259-282" title="Go to source code">uploadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$localFile</var></span> )</code>
+
+		<div class="description short">
+			<p>Upload object (if object already exists it <strong>WILL be replaced</strong>)</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Upload object (if object already exists it <strong>WILL be replaced</strong>)</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$bucket</var></dt>
+					<dd>Bucket name</dd>
+					<dt><var>$key</var></dt>
+					<dd>Object key (may contain / and other special characters, use at your own risk)</dd>
+					<dt><var>$contentType</var></dt>
+					<dd>Content-type (MIME)</dd>
+					<dt><var>$localFile</var></dt>
+					<dd>Local file upload</dd>
 				</dl></div>
 
 				<h4>Returns</h4>

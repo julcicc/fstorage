@@ -90,24 +90,29 @@ class FStorage_API {
 		$search = str_replace("*","%",$search);
 
 		$objects = array();
-		$objects[] = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("hola"), "contentType"=>"text/plain", "url" => "http://211.222.222.222/download/a/a7a7a");
-		$objects[] = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("hola"), "contentType"=>"text/plain", "url" => "http://211.222.222.222/download/a/a7a7a");
+		$objects[] = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("hola"), "contentType"=>"text/plain", "contentSize"=>121, "url" => "http://211.222.222.222/download/a/a7a7a");
+		$objects[] = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("hola"), "contentType"=>"text/plain", "contentSize"=>1212, "url" => "http://211.222.222.222/download/a/a7a7a");
 
 		return __success($objects);
 	}
 
 	public function putObject($bucket, $key, $contentType, $content) {
-		$result = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5($content), "contentType"=>$contentType, "url" => "http://211.222.222.222/download/a/a7a7a");
+		$result = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5($content), "contentType"=>$contentType, "contentSize"=>122, "url" => "http://211.222.222.222/download/a/a7a7a");
 		return __success($result);
 	}
 
-	public function uploadObject($bucket, $key, $contentType, $localFile) {
-		$result = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("hola"), "contentType"=>$contentType, "url" => "http://211.222.222.222/download/a/a7a7a");
+	public function uploadObject($bucket, $key, $contentType) {
+        //will check $_FILES array
+        if (!is_array($_FILES) || !isset($_FILES['file'])) {
+            return __error("COULD_NOT_READ_POST_FILE","Please check that that multipart/form-data is set and 'file' is being posted");
+        }
+
+		$result = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("aslas"), "contentType"=>$contentType, "contentSize"=>122, "url" => "http://211.222.222.222/download/a/a7a7a");
 		return __success($result);
 	}
 
 	public function getObject($bucket, $key) {
-		$result = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5("hola"), "contentType"=>"text/plain", "url" => "http://211.222.222.222/download/a/a7a7a");
+		$result = array("key"=>"aasss", "dateCreated"=>date('Y-m-d H:i:s'), "dateModified"=>date('Y-m-d H:i:s'), "contentMD5"=>md5($content), "contentType"=>$contentType, "contentSize"=>122, "url" => "http://211.222.222.222/download/a/a7a7a");
 		return __success($result);
 	}
 

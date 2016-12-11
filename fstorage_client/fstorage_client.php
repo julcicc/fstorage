@@ -60,6 +60,10 @@ class Result_Objects {
      */
     public $contentType;
     /**
+     * Content-size in bytes
+     */
+    public $contentSize;
+    /**
      * Internal URL of the object used to retrieve the data using API_Client
      */
     public $url;
@@ -105,24 +109,23 @@ class API_Client {
     	curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
-/*
-    curl_setopt($ch, CURLOPT_UPLOAD, 1);
-    curl_setopt($ch, CURLOPT_TIMEOUT, 86400); // 1 Day Timeout
-    curl_setopt($ch, CURLOPT_INFILE, $fp);
-    curl_setopt($ch, CURLOPT_NOPROGRESS,false); 
-    curl_setopt($ch, CURLOPT_BUFFERSIZE, 128);
-    curl_setopt($ch, CURLOPT_INFILESIZE, filesize($localFile));
-    curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
-    curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-*/
 		return $ch;
     }
 
     /**
      * @ignore
      */
+    private function setUploadOptions($ch, $fileSize) {
+    //    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:multipart/form-data"));
+        curl_setopt($ch, CURLOPT_INFILESIZE, $fileSize);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes
+    }
+
+    /**
+     * @ignore
+     */
 	private function setParams($ch, $params) {
-    	curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($params));
+    	curl_setopt($ch, CURLOPT_POSTFIELDS, $params);
 	}
 
     /**
@@ -140,10 +143,10 @@ class API_Client {
     /**
      * @ignore
      */
-	private function getResult($ch) {
+	private function getResult($ch, $debug=0) {
 		$response = curl_exec($ch);
         $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-		if ($res===false) {
+		if ($response===false) {
             $obj = $this->error(curl_errno($ch), curl_error($ch) );
 		    curl_close($ch);
             return $obj;
@@ -151,6 +154,10 @@ class API_Client {
         $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
         $header = substr($response, 0, $header_size);
         $body = substr($response, $header_size);
+        if ($debug) { 
+            var_dump($response);
+            die("END");
+        }
 
         if ($http_code!="200") {
             $obj = $this->error("HTTP_" . $http_code, trim(strip_tags($body)));
@@ -253,4 +260,33 @@ class API_Client {
 		return $this->getResult($ch);
 	}
 
+    /**
+     * Upload object (if object already exists it **WILL be replaced**)
+     *
+     * @param string $bucket Bucket name
+     * @param string $key    Object key (may contain / and other special characters, use at your own risk)
+     * @param string $contentType Content-type (MIME)
+     * @param string $localFile Local file upload
+     * @return API_Result    The new object {@see \FStorage\Result_Objects}
+     */
+	public function uploadObject($bucket, $key, $contentType, $localFile) {
+		$ch = $this->curl();
+        //check is file and is readable
+        if (!is_file($localFile) || !is_readable($localFile)) {
+            $obj = $this->error("ERROR_UPLOAD_FILE", "'$localFile' not file/readable");
+            curl_close($ch);
+            return $obj;
+        }
+        $size = @filesize($localFile);
+        if ($size===false) {
+            $obj = $this->error("ERROR_UPLOAD_FILESIZE", "Could not determine file size of '$localFile'");
+            curl_close($ch);
+            return $obj;
+        }
+        $filename = basename($localFile);
+        $this->setUploadOptions($ch, $size);
+        $cfile = new \CURLFile($localFile, $contentType, $filename);
+		$this->setParams($ch, $this->getBasicParams("uploadObject", array("bucket"=>$bucket,"key"=>$key,"contentType"=>$contentType,"file"=>$cfile)));
+		return $this->getResult($ch,1);
+	}
 }

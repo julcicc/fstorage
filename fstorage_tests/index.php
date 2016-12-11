@@ -131,6 +131,34 @@ var_dump($client->putObject("dummy", "path/to/my/file", "application/json", "{fo
 </pre>
 </div>
 
+<h2>Upload Object (error)</h2>
+<code>
+$client-&gt;uploadObject("dummy", "path/to/my/file", "application/octet-stream", "/path/to/none/file");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->uploadObject("dummy", "path/to/my/file", "application/octet-stream", "/path/to/none/file"));
+?>
+</pre>
+</div>
+
+<h2>Upload Object (simple file)</h2>
+<?php
+$fname = "/tmp/fstorage-temp.txt";
+file_put_contents($fname,"Simple text file");
+?>
+<code>
+$client-&gt;uploadObject("dummy", "/tmp/dummy.txt", "text/plain", "<?=$fname?>");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->uploadObject("dummy", "/tmp/dummy.txt", "text/plain", $fname));
+?>
+</pre>
+</div>
+
 </body>
 </html>
 

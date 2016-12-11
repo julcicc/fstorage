@@ -27,7 +27,6 @@ set_error_handler("my_error_handler", E_ALL);
 register_shutdown_function('fatalErrorShutdownHandler');
 error_reporting(0);
 
-
 //TODO check user password
 if (!isset($_REQUEST['user']) || !isset($_REQUEST['pass'])) {
     _json_output(__error("INVALID_CREDENTIALS","Invalid credentials"));
