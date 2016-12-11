@@ -40,6 +40,10 @@ class Result_Buckets {
  */
 class Result_Objects {
     /**
+     * Bucket name
+     */
+    public $bucket;
+    /**
      * Object key
      */
     public $key;
@@ -105,6 +109,13 @@ class API_Client {
 	 */
     private function curl() {
 		$ch = curl_init();
+
+        //XXX debug
+        //$out = fopen("/tmp/fstorage-api-debug.log","at");
+        //curl_setopt($ch, CURLOPT_VERBOSE, true);  
+        //curl_setopt($ch, CURLOPT_STDERR, $out);  
+        //XXX end debug
+
 		curl_setopt($ch, CURLOPT_URL, $this->url );
     	curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -242,7 +253,7 @@ class API_Client {
 	}
 
     /**
-     * Put object (if object already exists it **WILL be replaced**)
+     * Put object (if object already exists it **WILL be replaced**) with some content (bytes as argument)
      *
      * @param string $bucket Bucket name
      * @param string $key    Object key (may contain / and other special characters, use at your own risk)
@@ -257,7 +268,8 @@ class API_Client {
 	}
 
     /**
-     * Upload object (if object already exists it **WILL be replaced**)
+     * Upload object (if object already exists it **WILL be replaced**), from a localFile.
+     * You can call this method with an uploaded file. as in $_FILES['myfile']['tmp_name']
      *
      * @param string $bucket Bucket name
      * @param string $key    Object key (may contain / and other special characters, use at your own risk)
@@ -285,4 +297,29 @@ class API_Client {
 		$this->setParams($ch, $this->getBasicParams("uploadObject", array("bucket"=>$bucket,"key"=>$key,"contentType"=>$contentType,"file"=>$cfile)));
 		return $this->getResult($ch);
 	}
+
+    /**
+     * Remove object from DB and storage (cannot be undone)
+     *
+     * @param string $bucket Bucket name
+     * @param string $key    Object key (may contain / and other special characters, use at your own risk)
+     * @return API_Result    OK or ERROR is returned on status
+     */
+	public function removeObject($bucket, $key) {
+		$ch = $this->curl();
+        $this->setParams($ch, $this->getBasicParams("removeObject", array("bucket"=>$bucket,"key"=>$key)));
+		return $this->getResult($ch);
+    }
+
+    /**
+     * Removes any empty folders inside the bucket (admin)
+     *
+     * @param string $bucket Bucket name
+     * @return API_Result    OK or ERROR is returned on status
+     */
+	public function pruneBucket($bucket) {
+		$ch = $this->curl();
+        $this->setParams($ch, $this->getBasicParams("pruneBucket", array("bucket"=>$bucket)));
+		return $this->getResult($ch);
+    }
 }

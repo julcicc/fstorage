@@ -1,20 +1,30 @@
 <?php
 
 $CLIENT_FILE = "/Users/julian/Sites/fstorage/fstorage_client/fstorage_client.php";
+$SERVER = "http://localhost/~julian/fstorage/fstorage_server/api.php";
+$USER = "test";
+$PASS = "test";
+$REMOVE_OBJECTS = false;
 
 require($CLIENT_FILE);
 
-
-$client = new \FStorage\API_Client("http://localhost/~julian/fstorage/fstorage_server/api.php", "test", "test");
+$client = new \FStorage\API_Client($SERVER,$USER,$PASS);
 
 //create test stuff
 $fname = "/tmp/fstorage-temp.txt";
 file_put_contents($fname,"Simple text file");
 
+//big file
+$bigFile = "/tmp/fstorage-temp-big.bin";
+$cmd = "/bin/dd of=$bigFile bs=50m count=1 if=/dev/random";
+system($cmd);
+$bigMD5 = md5_file($bigFile);
+
 $rand_name = "random_" . rand(1, 10000); 
 
 $client->removeBucket("dummy");
 $client->createBucket("dummy", "Test Bucket");
+
 ?>
 <html>
 <style>
@@ -26,7 +36,7 @@ font-family:Sans-Serif;
 <body>
 <h1>FStorage Client Tests</h1>
 <code>
-$client = new \FStorage\Client("http://localhost/~julian/fstorage/", "test", "test");
+$client = new \FStorage\Client("<?=$SERVER?>", "<?=$USER?>", "<?=$PASS?>");
 </code>
 
 <h2>Test Connection (NOOP)</h2>
@@ -89,7 +99,8 @@ var_dump($client->createBucket("my test * bucket", "My * Test Bucket"));
 </pre>
 </div>
 
-<h2>Remove Bucket</h2>
+<?php if($REMOVE_OBJECTS) {?>
+<h2>Remove Bucket (OK)</h2>
 <code>
 $client-&gt;removeBucket("test_bucket");
 </code>
@@ -112,18 +123,7 @@ var_dump($client->removeBucket($rand_name));
 ?>
 </pre>
 </div>
-
-<h2>List Objects</h2>
-<code>
-$client-&gt;listObjects("dummy", "*");
-</code>
-<div class="result">
-<pre>
-<?php
-var_dump($client->listObjects("dummy", "*"));
-?>
-</pre>
-</div>
+<?}?>
 
 <h2>Put Object (simple)</h2>
 <code>
@@ -160,6 +160,97 @@ var_dump($client->uploadObject("dummy", "/tmp/dummy.txt", "text/plain", $fname))
 ?>
 </pre>
 </div>
+
+<h2>Upload Object (big file <?=$bigFile?>. Original MD5 <?=$bigMD5?>)</h2>
+<code>
+$client-&gt;uploadObject("dummy", "/tmp/dummy.bin", "application/octet-stream", "<?=$bigFile?>");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->uploadObject("dummy", "/tmp/dummy.bin", "application/octet-stream", $bigFile));
+@unlink($bigFile);
+?>
+</pre>
+</div>
+
+<h2>List Objects</h2>
+<code>
+$client-&gt;listObjects("dummy", "*");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->listObjects("dummy", "*"));
+?>
+</pre>
+</div>
+
+<?php if ($REMOVE_OBJECTS){ ?>
+<h2>Remove Bucket (ERROR)</h2>
+<code>
+$client-&gt;removeBucket("dummy");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->removeBucket("dummy"));
+?>
+</pre>
+</div>
+
+<h2>Remove Objects (OK)</h2>
+<code>
+$client-&gt;removeObject("dummy", "path/to/my/file");<br>
+$client-&gt;removeObject("dummy", "/tmp/dummy.txt");<br>
+$client-&gt;removeObject("dummy", "/tmp/dummy.bin");<br>
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->removeObject("dummy", "path/to/my/file"));
+var_dump($client->removeObject("dummy", "/tmp/dummy.txt"));
+var_dump($client->removeObject("dummy", "/tmp/dummy.bin"));
+?>
+</pre>
+</div>
+
+<h2>Remove Object (ERROR)</h2>
+<code>
+$client-&gt;removeObject("dummy", "<?=$rand_name?>");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->removeObject("dummy", $rand_name));
+?>
+</pre>
+</div>
+
+<h2>Prune bucket</h2>
+<code>
+$client-&gt;pruneBucket("dummy");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->pruneBucket("dummy"));
+?>
+</pre>
+</div>
+
+<h2>Remove Bucket (OK)</h2>
+<code>
+$client-&gt;removeBucket("dummy");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->removeBucket("dummy"));
+?>
+</pre>
+</div>
+<?}?>
 
 </body>
 </html>
