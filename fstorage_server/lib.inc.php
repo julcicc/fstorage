@@ -30,13 +30,13 @@ class FStorage_API {
         }
     }
 
-    protected $lastError = null;
+    public $lastError = null;
 
     private function isSimpleName($str) {
         return preg_match('/^[a-z0-9.\-\_]+$/i', $str);
     }
 
-    protected function bucketExists($bucket) {
+    public function bucketExists($bucket) {
         $conn = __getconnection();
         $stmt = $conn->prepare("select count(*) as q from buckets where bucket_name=?");
 		$stmt->execute(array($bucket));
@@ -44,7 +44,7 @@ class FStorage_API {
         return ($row['q']>0);
     }
 
-    protected function fetchBucketKey($bucket, $key) {
+    public function fetchBucketKey($bucket, $key) {
         $conn = __getconnection();
         $stmt = $conn->prepare("select * from objects where bucket_name=? and object_key=?");
 		$stmt->execute(array($bucket, $key));
@@ -52,7 +52,15 @@ class FStorage_API {
         return $row;
     }
 
-    protected function formatObject($row) {
+    public function fetchLocation($location) {
+        $conn = __getconnection();
+        $stmt = $conn->prepare("select * from objects where fs_location=?");
+		$stmt->execute(array($location));
+        $row = $stmt->fetch();
+        return $row;
+    }
+
+    public function formatObject($row) {
         return array('bucket' => $row['bucket_name']
             , 'key' => $row['object_key']
             , 'dateCreated' => $row['date_created']
@@ -60,31 +68,31 @@ class FStorage_API {
             , 'contentMD5' => $row['content_md5']
             , 'contentType' => $row['content_type']
             , 'contentSize' => intval($row['content_size'])
-            , 'url' => $this->objectURL($row['bucket_name'], $row['fs_location'])
+            , 'url' => $this->objectURL($row['fs_location'])
         );
     }
 
-    protected function getBucketFolder($bucket) {
+    public function getBucketFolder($bucket) {
         return FSTORAGE_ROOT . "/$bucket";
     }
 
-    protected function getObjectFolder($bucket, $location) {
+    public function getObjectFolder($bucket, $location) {
         return dirname( $this->getBucketFolder($bucket) . "/" . $location);
     }
 
-    protected function getObjectFile($bucket, $location) {
+    public function getObjectFile($bucket, $location) {
         return $this->getBucketFolder($bucket) . "/" . $location;
     }
 
-    protected function getObjectMetaFile($bucket, $location) {
+    public function getObjectMetaFile($bucket, $location) {
         return $this->getBucketFolder($bucket) . "/" . $location . ".meta";
     }
 
-    protected function objectURL( $bucket, $location ) {
+    public function objectURL( $location ) {
         $protocol = "http"; // 
         $host = isset($_SERVER['HTTP_X_FORWARDED_HOST'])?$_SERVER['HTTP_X_FORWARDED_HOST']:$_SERVER['HTTP_HOST'];
         $path = str_replace("api.php","dl.php",$_SERVER['SCRIPT_NAME']);
-        return sprintf("%s://%s%s?%s", $protocol, $host, $path, http_build_query(array("b"=>$bucket,"l"=>$location)));
+        return sprintf("%s://%s%s?%s", $protocol, $host, $path, http_build_query(array("l"=>$location)));
     }
 
     private function baseLocation($bucket, $key) {
@@ -98,7 +106,7 @@ class FStorage_API {
         return $final;
     }
 
-    protected function locationExists($fsLocation) {
+    public function locationExists($fsLocation) {
         $conn = __getconnection();
         $stmt = $conn->prepare("select count(*) as q from objects where fs_location=?");
 		$stmt->execute(array($fsLocation));
@@ -106,7 +114,7 @@ class FStorage_API {
         return ($row['q']>0);
     }
 
-    protected function createBaseObject($bucket, $key) {
+    public function createBaseObject($bucket, $key) {
         $conn = __getconnection();
         $now = date('Y-m-d H:i:s');
         $fsLocation = $this->baseLocation($bucket, $key);
@@ -128,13 +136,13 @@ class FStorage_API {
         return false;
     }
 
-    protected function deleteBaseObject($bucket, $key) {
+    public function deleteBaseObject($bucket, $key) {
         $conn = __getconnection();
         $stmt = $conn->prepare("delete from objects where bucket_name=? and object_key=?");
         return $stmt->execute(array($bucket, $key));
     }
 
-    protected function updateBaseObject($obj) {
+    public function updateBaseObject($obj) {
         $conn = __getconnection();
         $stmt = $conn->prepare("update objects set date_created=:date_created
             , date_modified=:date_modified
@@ -260,7 +268,7 @@ class FStorage_API {
         return $this->putOrUploadObject($bucket, $key, $contentType, false);
 	}
 
-    protected function putOrUploadObject($bucket, $key, $contentType, $content) {
+    public function putOrUploadObject($bucket, $key, $contentType, $content) {
         //check bucket
         if (!$this->bucketExists($bucket)) {
             return __error("INVALID_BUCKET", "Bucket does not exist");
