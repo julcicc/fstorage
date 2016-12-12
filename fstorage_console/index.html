@@ -1,0 +1,142 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+</head>
+<body>
+<div class="row">
+    <div class="col-md-2">
+    <table class="table condensed">
+        <tbody id="bucketRows">
+            <thead>
+                <tr>
+                    <th>Bucket</th>
+                </tr>
+            </thead>
+            <tbody id="bucketList">
+            </tbody>
+    </table>
+    </div>
+    <div class="col-md-10">
+    <table class="table condensed table-striped">
+        <tbody id="objectRows">
+            <thead>
+                <tr>
+                    <th>Key</th>
+                    <th>Size</th>
+                    <th>Type</th>
+                    <th>Created</th>
+                    <th>Modified</th>
+                    <th>Content MD5</th>
+                </tr>
+            </thead>
+        </tbody>
+    </table>
+    <tfoot id="objectFooter">
+        <tr>
+            <td colspan="6" align="center">No objects</td>
+        </tr>
+    </tfoot>
+    </div>
+</div>
+</body>
+<script id="bucketRowsTmpl" type="x-tmpl-mustache">
+{{#result}}
+<tr><td><small><a href="javascript:selectBucket('{{bucket_name}}','{{bucket_description}}')">{{bucket_name}}</a></small></td></tr>
+{{/result}}
+</script>
+<script id="objectRowsTmpl" type="x-tmpl-mustache">
+{{#result}}
+<tr>
+    <td><a target="_blank" href="{{url}}">{{key}}</a></td>
+    <td><small>{{sizeFormatted}}</small></td>
+    <td>{{contentType}}</td>
+    <td><small>{{dateCreated}}</small></td>
+    <td><small>{{dateModified}}</small></td>
+    <td><small><small>{{contentMD5}}</small></small></td>
+</tr>
+{{/result}}
+</script>
+
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+<script>
+SERVER_URL = "http://localhost/~julian/fstorage/fstorage_server/api.php";
+SERVER_USER = "test";
+SERVER_PASS = "test";
+
+CURRENT_OBJECTS = null;
+function mergeData(targetSelector, templateName, data, finishCB) {
+            if ((typeof targetSelector !== "string") ||
+               (typeof templateName !== "string") ||
+                (data === undefined || data === null)) {
+                console.error("missing argument in mergeData");
+                return;
+            }
+
+            t = window.$(targetSelector);
+
+			var template = $('#' + templateName).html();
+			Mustache.parse(template);
+			t.html( Mustache.render(template, data) );
+            if(finishCB) finishCB()
+}
+
+function fsAPI(name,param) {
+	var myParams = { "user" : SERVER_USER, "pass" : SERVER_PASS, "method" : name }
+	if (param) for ( key in param ) {
+		myParams[key] = param[key];
+	}
+
+	return $.ajax({url:SERVER_URL, data:myParams});
+}
+
+function checkAndStart() {
+	fsAPI("noop").done( function(data){ 
+		if (data && data.status == "ok") {
+			start();	
+		}
+		else {
+			alert("Server not available");
+		}
+	} );
+}
+
+function start() {
+	fsAPI("listBuckets").done( function(data){
+		mergeData("#bucketRows","bucketRowsTmpl", data);
+	});
+}
+
+function selectBucket(bucketName) {
+    $('#objectFooter').hide();
+    fsAPI("listObjects", {"bucket":bucketName,"search":"*"}).done( function(data){
+        CURRENT_OBJECTS = data;
+        if (data.result && data.result.length) {
+            for (k in data.result) {
+                data.result[k].sizeFormatted = bytesToSize(data.result[k].contentSize);
+                data.result[k].url = data.result[k].url + "&user=" + SERVER_USER + "&pass=" + SERVER_PASS;
+            }
+            mergeData("#objectRows","objectRowsTmpl",data);
+        }
+        else {
+         $('#objectFooter').show();
+        }
+
+        
+	});
+}
+
+function bytesToSize(bytes) {
+    var sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    if (bytes == 0) return 'n/a';
+    var i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+    if (i == 0) return bytes + ' ' + sizes[i];
+    return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
+}
+
+$(checkAndStart);
+</script>
+</html>
