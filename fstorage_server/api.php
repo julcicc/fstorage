@@ -27,12 +27,15 @@ function _json_output($value) {
 	exit;
 }
 
+header( 'Access-Control-Allow-Origin: *' );
+header( 'Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept' );
+
 set_error_handler("my_error_handler", E_ALL);
 set_exception_handler("my_exception_handler");
 register_shutdown_function('fatalErrorShutdownHandler');
 error_reporting(0);
 
-if (intval($_SERVER['CONTENT_LENGTH'])>0 && count($_POST)==0) {
+if (isset($_SERVER['CONTENT_LENGTH']) && intval($_SERVER['CONTENT_LENGTH'])>0 && count($_POST)==0) {
     _json_output(__error("ERROR_POST_SIZE",sprintf("Post size (%d) exceeds current server settings (%s)"
         , intval($_SERVER['CONTENT_LENGTH']), ini_get("post_max_size") )));
 }
