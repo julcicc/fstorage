@@ -1,7 +1,7 @@
 <?php
 
-$CLIENT_FILE = "/Users/julian/Sites/fstorage/fstorage_client/fstorage_client.php";
-$SERVER = "http://localhost/~julian/fstorage/fstorage_server/api.php";
+$CLIENT_FILE = dirname(__FILE__) . "/../fstorage_client/fstorage_client.php";
+$SERVER = "http://fstorage.julian.dev/fstorage_server/api.php";
 $USER = "test";
 $PASS = "test";
 $REMOVE_OBJECTS = false;
@@ -16,8 +16,9 @@ file_put_contents($fname,"Simple text file");
 
 //big file
 $bigFile = "/tmp/fstorage-temp-big.bin";
-$cmd = "/bin/dd of=$bigFile bs=50m count=1 if=/dev/random";
-system($cmd);
+//$cmd = "/bin/dd of=$bigFile bs=50m count=1 if=/dev/random";
+//echo "=== $cmd === ";
+//system($cmd);
 $bigMD5 = md5_file($bigFile);
 
 $rand_name = "random_" . rand(1, 10000); 
@@ -252,6 +253,25 @@ var_dump($client->removeBucket("dummy"));
 </div>
 <?}?>
 
+<h2>Download Object (OK)</h2>
+<code>
+$client-&gt;downloadObject("dummy","/tmp/dummy.txt");
+</code>
+<div class="result">
+<a href="dl_test.php?SERVER=<?=urlencode($SERVER)?>&USER=<?=urlencode($USER)?>&PASS=<?=urlencode($PASS)?>&bucket=<?=urlencode("dummy")?>&key=<?=urlencode("/tmp/dummy.txt")?>">Try</a>
+</div>
+
+<h2>Save Object( OK)</h2>
+<code>
+$client-&gt;saveObject("dummy","/tmp/dummy.txt", "/tmp/save.test");
+</code>
+<div class="result">
+<pre>
+<?php
+var_dump($client->saveObject("dummy", "/tmp/dummy.txt", "/tmp/save.test"));
+?>
+</pre>
+</div>
 </body>
 </html>
 
