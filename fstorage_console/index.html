@@ -1,11 +1,59 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+    <!-- bootstrap min css + theme css -->
+    <link rel="stylesheet" href="bootstrap.min.css">
+<style>
+html {
+margin: 10px 10px 10px 10px;
+}
+#panel {
+    display:none;
+}
+#noServerAlert {
+    display:none;
+}
+#errorAlert{
+    display:none;
+}
+</style>
+
 </head>
 <body>
-<div class="row">
+<div class="alert alert-danger" role="alert" id="errorAlert">
+Error contacting server
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="alert alert-danger" role="alert" id="noServerAlert">
+Server not available
+<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+</div>
+<div class="row" id="form">
+	<div class="col-md-4">
+
+<form onSubmit="checkAndStart()">
+  <div class="form-group">
+    <label for="inputServerUrl">Server URL</label>
+    <input type="text" class="form-control" id="inputServerUrl" placeholder="http://myserver.com/fstorage_server/api.php" required>
+  </div>
+  <div class="form-group">
+    <label for="inputServerUser">User</label>
+    <input type="text" class="form-control" id="inputServerUser" required>
+  </div>
+  <div class="form-group">
+    <label for="inputServerPass">Pass</label>
+    <input type="password" class="form-control" id="inputServerPass" required>
+  </div>
+  <button type="submit" class="btn btn-default">Start!</button>
+</form>
+	</div>
+	<div class="col-md-8">&nbsp;</div>
+</div>
+<div class="row" id="panel">
     <div class="col-md-2">
     <table class="table condensed">
         <tbody id="bucketRows">
@@ -58,14 +106,12 @@
 </tr>
 {{/result}}
 </script>
-
-<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-<script src="//cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+<!-- jquery + bootstrap js + mustache js -->
+<script src="libs.min.js"></script>
 <script>
-SERVER_URL = "http://localhost/~julian/fstorage/fstorage_server/api.php";
-SERVER_USER = "test";
-SERVER_PASS = "test";
+SERVER_URL = "";
+SERVER_USER = "";
+SERVER_PASS = "";
 
 CURRENT_OBJECTS = null;
 function mergeData(targetSelector, templateName, data, finishCB) {
@@ -90,16 +136,25 @@ function fsAPI(name,param) {
 		myParams[key] = param[key];
 	}
 
-	return $.ajax({url:SERVER_URL, data:myParams});
+	return $.ajax({url:SERVER_URL, data:myParams, error: function(xhr,ajaxOptions,thrownError){
+		$('#errorAlert').show();
+	}});
 }
 
 function checkAndStart() {
+	event.preventDefault();
+	SERVER_URL = $('#inputServerUrl').val();
+	SERVER_USER = $('#inputServerUser').val();
+	SERVER_PASS = $('#inputServerPass').val();
+
 	fsAPI("noop").done( function(data){ 
 		if (data && data.status == "ok") {
+			$('#form').hide();
+			$('#panel').show();
 			start();	
 		}
 		else {
-			alert("Server not available");
+			$('#noServerAlert').show();
 		}
 	} );
 }
@@ -137,6 +192,5 @@ function bytesToSize(bytes) {
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 }
 
-$(checkAndStart);
 </script>
 </html>
