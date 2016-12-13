@@ -104,6 +104,13 @@ class API_Client {
         $this->pass = $pass;
     }
 
+    /**
+     * @ignore
+     */
+    private function authURL($url) {
+        return $url . '&user=' . urlencode($this->user) . '&pass=' . urlencode($this->pass);
+    }
+
 	/**
 	 * @ignore
 	 */
@@ -253,6 +260,19 @@ class API_Client {
 	}
 
     /**
+     * Get an object
+     *
+     * @param string $bucket Bucket name
+     * @param string $key Object key
+     * @return API_Result An instance of {@see \FStorage\Result_Objects}
+     */
+	public function getObject($bucket, $key) {
+		$ch = $this->curl();
+		$this->setParams($ch, $this->getBasicParams("getObject", array("bucket"=>$bucket,"key"=>$key)));
+		return $this->getResult($ch);
+	}
+
+    /**
      * Put object (if object already exists it **WILL be replaced**) with some content (bytes as argument)
      *
      * @param string $bucket Bucket name
@@ -321,5 +341,130 @@ class API_Client {
 		$ch = $this->curl();
         $this->setParams($ch, $this->getBasicParams("pruneBucket", array("bucket"=>$bucket)));
 		return $this->getResult($ch);
+    }
+
+    /**
+     * Download object to browser (handles HTTP headers, and download). It will be finish 
+     * script execution
+     *
+     * @param string $bucket Bucket name
+     * @param string $key    Object key (may contain / and other special characters, use at your own risk)
+     * @return void
+     */
+	public function downloadObject($bucket, $key) {
+        $obj = $this->getObject($bucket, $key);
+        if (is_object($obj) && $obj->status == "ok") {
+            $url = $obj->result->url;
+            $this->downloadURL($url);
+        }
+    }
+
+    /**
+     * Executes a HEAD command on the given object URL and returns the headers
+     *
+     * @param string $url   Object URL
+     * @return array    An assoc array with key value for each header
+     */
+	public function headURL($url) {
+		$ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $this->authURL($url));
+		curl_setopt($ch, CURLOPT_NOBODY, true);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HEADER, true);
+		$response = curl_exec($ch);
+        if ($response === false) return false;
+        else {
+            $headersString = trim($response);
+            $lines = explode("\n", $headersString);
+            $headers = array();
+            foreach($lines as $line) {
+                if (strpos($line, "HTTP")===0) {
+                    $headers['HTTP'] = $line;
+                }
+                elseif (($ix=strpos($line,':'))!==false) {
+                    $headers[ substr($line, 0, $ix) ] = trim(substr($line, $ix+1));
+                }
+            }
+            return $headers;
+        }
+    }
+
+    /**
+     * Download object to browser directly (handles HTTP headers, and download). It will be finish 
+     * script execution
+     *
+     * @param string $url Object URL
+     * @return void
+     */
+    public function downloadURL($url) {
+
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+
+        $headers = $this->headURL($url);
+
+        //now check headers
+        if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
+            if ($headers['ETag']==$_SERVER['HTTP_IF_NONE_MATCH']) {
+                header('Not Modified',true,304);
+                exit;
+            }
+        }
+
+        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
+            $clientTM = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
+            $fileTM = strtotime($headers['Last-Modified']);
+            if ($clientTM && $fileTM <= $clientTM) {
+                header('Not Modified',true,304);
+                exit;
+            }
+        }
+
+        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type" );
+        foreach($proxyHeaders as $h) {
+            header("$h: " . $headers[$h]);
+        }
+
+        $http_options = array("method"=>"GET");
+        if (isset($_SERVER['HTTP_RANGE'])) {
+            $http_options['header'] = "Range: " . $_SERVER['HTTP_RANGE'] . "\r\n";
+        }
+
+        //check ranges and call fsockopen
+        $opts = array( 'http'=>$http_options );
+        $context = stream_context_create($opts);
+    
+        $fp = fopen($this->authURL($url), 'rb', false, $context);
+        fpassthru($fp);
+        exit;
+    }
+
+    /**
+     * Save object to file
+     *
+     * @param string $bucket Bucket name
+     * @param string $key    Object key (may contain / and other special characters, use at your own risk)
+     * @param string $filename Filename to write to
+     * @return boolean True en caso correcto/false en caso de error
+     */
+	public function saveObject($bucket, $key, $filename) {
+        $obj = $this->getObject($bucket, $key);
+        if (is_object($obj) && $obj->status == "ok") {
+            $url = $obj->result->url;
+            return $this->saveURL($url, $filename);
+        }
+        return false;
+    }
+
+    /**
+     * Save object to file
+     *
+     * @param string $url Object URL
+     * @param string $filename Filename to write to
+     * @return boolean True en caso correcto/false en caso de error
+     */
+    public function saveURL($url, $filename) {
+        return copy($this->authURL($url), $filename);
     }
 }
