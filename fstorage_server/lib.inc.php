@@ -323,7 +323,7 @@ class FStorage_API {
         $obj['date_modified'] = date('Y-m-d H:i:s');
 
         //write metadata file
-        file_put_contents($metaFile,json_encode($obj,JSON_PRETTY_PRINT));
+        file_put_contents($metaFile,json_encode($obj, JSON_PRETTY_PRINT));
         $this->updateBaseObject($obj);
 
         return __success($this->formatObject($obj));
