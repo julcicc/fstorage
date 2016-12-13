@@ -260,6 +260,19 @@ class FStorage_API {
 		return __success($objects);
 	}
 
+	public function getObject($bucket, $key) {
+        $conn = __getconnection();
+        $stmt = $conn->prepare("select * from objects where bucket_name=? and object_key=?");
+		$stmt->execute(array($bucket, $key));
+        $objects = array();
+        if ($row = $stmt->fetch()) {
+            return __success($this->formatObject($row));
+        }
+        else {
+		    return __error("OBJECT_NOT_FOUND", "Object not found ($bucket @ $key)");
+        }
+	}
+
 	public function putObject($bucket, $key, $contentType, $content) {
         return $this->putOrUploadObject($bucket, $key, $contentType, $content);
 	}
