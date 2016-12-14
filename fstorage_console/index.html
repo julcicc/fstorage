@@ -16,21 +16,35 @@ margin: 10px 10px 10px 10px;
 #errorAlert{
     display:none;
 }
+
+.bucketSelected{
+    font-size:110%;
+    color:black;
+    font-weight:bold;
+}
+
+.bucketSelected::before {
+    content: "> ";
+
+}
+
+a.bucketLink:hover, a.bucketLink:active, a.bucketLink:visited {
+    text-decoration:none;
+}
+
+a.bucketLink {
+    cursor:pointer;
+}
+
 </style>
 
 </head>
 <body>
 <div class="alert alert-danger" role="alert" id="errorAlert">
 Error contacting server
-<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-  <span aria-hidden="true">&times;</span>
-</button>
 </div>
 <div class="alert alert-danger" role="alert" id="noServerAlert">
 Server not available
-<button type="button" class="close" data-dismiss="alert" aria-label="Close">
-  <span aria-hidden="true">&times;</span>
-</button>
 </div>
 <div class="row" id="form">
 	<div class="col-md-4">
@@ -53,12 +67,29 @@ Server not available
 	</div>
 	<div class="col-md-8">&nbsp;</div>
 </div>
-<div class="row" id="panel">
+<div id="panel">
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="btn-toolbar" role="toolbar">
+            <button type="button" class="btn btn-default">+ Bucket</button>
+            <button type="button" class="btn btn-default">+ Object</button>
+            <button type="button" class="btn btn-danger">- Delete</button>
+            <button type="button" class="btn btn-danger" onClick="logout()">Logout</button>
+        </div>
+    </div>
+    <div class="col-md-4" align="right">
+        <kbd id="serverDisplay"></kbd>
+    </div>
+</div>
+<div class="row">
+    <br>
     <div class="col-md-2">
     <table class="table condensed">
         <tbody id="bucketRows">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Bucket</th>
                 </tr>
             </thead>
@@ -71,6 +102,7 @@ Server not available
         <tbody id="objectRows">
             <thead>
                 <tr>
+                    <th>&nbsp;</th>
                     <th>Key</th>
                     <th>Size</th>
                     <th>Type</th>
@@ -80,24 +112,28 @@ Server not available
                 </tr>
             </thead>
         </tbody>
-    </table>
-    <tfoot id="objectFooter">
+    <tfoot>
         <tr>
-            <td colspan="6" align="center">No objects</td>
+            <td id="noObjects" colspan="7" align="center">No objects</td>
         </tr>
     </tfoot>
+    </table>
     </div>
+</div>
 </div>
 </body>
 <script id="bucketRowsTmpl" type="x-tmpl-mustache">
 {{#result}}
-<tr><td><small><a href="javascript:selectBucket('{{bucket_name}}','{{bucket_description}}')">{{bucket_name}}</a></small></td></tr>
+<tr>
+    <td><input type='checkbox'></td>
+<td><small><a class="bucketLink" onClick="selectBucket(this,'{{bucket_name}}','{{bucket_description}}')">{{bucket_name}}</a></small></td></tr>
 {{/result}}
 </script>
 <script id="objectRowsTmpl" type="x-tmpl-mustache">
 {{#result}}
 <tr>
-    <td><a target="_blank" href="{{url}}">{{key}}</a></td>
+    <td><input type='checkbox'></td>
+    <td><a href="{{url}}">{{key}}</a></td>
     <td><small>{{sizeFormatted}}</small></td>
     <td>{{contentType}}</td>
     <td><small>{{dateCreated}}</small></td>
@@ -141,20 +177,37 @@ function fsAPI(name,param) {
 	}});
 }
 
-function checkAndStart() {
-	event.preventDefault();
-	SERVER_URL = $('#inputServerUrl').val();
-	SERVER_USER = $('#inputServerUser').val();
-	SERVER_PASS = $('#inputServerPass').val();
+function checkAndStart(server, user, pass) {
+	if(event) event.preventDefault();
+    if (server && user && pass) {
+        SERVER_URL = server;
+        SERVER_USER = user;
+        SERVER_PASS = pass;
+    }
+    else {
+	    SERVER_URL = $('#inputServerUrl').val();
+	    SERVER_USER = $('#inputServerUser').val();
+	    SERVER_PASS = $('#inputServerPass').val();
+    }
+    window.localStorage['SERVER_URL'] = SERVER_URL;
+    window.localStorage['SERVER_USER'] = SERVER_USER;
+    window.localStorage['SERVER_PASS'] = SERVER_PASS;
 
 	fsAPI("noop").done( function(data){ 
 		if (data && data.status == "ok") {
 			$('#form').hide();
+            $('#serverDisplay').html(SERVER_URL);
 			$('#panel').show();
 			start();	
 		}
 		else {
+			$('#panel').hide();
+			$('#form').show();
+            if (data && data.errorText) {
+			    $('#noServerAlert').html(data.errorText);
+            }
 			$('#noServerAlert').show();
+            $('#serverDisplay').html("");
 		}
 	} );
 }
@@ -165,8 +218,19 @@ function start() {
 	});
 }
 
-function selectBucket(bucketName) {
-    $('#objectFooter').hide();
+function logout() {
+    window.localStorage.removeItem("SERVER_URL");
+    window.localStorage.removeItem("SERVER_USER");
+    window.localStorage.removeItem("SERVER_PASS");
+    SERVER_URL = SERVER_USER = SERVER_PASS = "";
+    location.reload();
+}
+
+function selectBucket(obj,bucketName) {
+    $('.bucketLink').removeClass("bucketSelected");
+    $(obj).addClass("bucketSelected");
+
+    $('#noObjects').hide();
     fsAPI("listObjects", {"bucket":bucketName,"search":"*"}).done( function(data){
         CURRENT_OBJECTS = data;
         if (data.result && data.result.length) {
@@ -174,13 +238,12 @@ function selectBucket(bucketName) {
                 data.result[k].sizeFormatted = bytesToSize(data.result[k].contentSize);
                 data.result[k].url = data.result[k].url + "&user=" + SERVER_USER + "&pass=" + SERVER_PASS;
             }
-            mergeData("#objectRows","objectRowsTmpl",data);
         }
         else {
-         $('#objectFooter').show();
+            data = { result: [] };
+            $('#noObjects').show();
         }
-
-        
+        mergeData("#objectRows","objectRowsTmpl",data);
 	});
 }
 
@@ -191,6 +254,19 @@ function bytesToSize(bytes) {
     if (i == 0) return bytes + ' ' + sizes[i];
     return (bytes / Math.pow(1024, i)).toFixed(1) + ' ' + sizes[i];
 }
+
+$(function(){
+    if ( window.localStorage['SERVER_URL']
+        && window.localStorage['SERVER_USER']
+        && window.localStorage['SERVER_PASS'] ) {
+        checkAndStart(
+            window.localStorage['SERVER_URL']
+            , window.localStorage['SERVER_USER']
+            , window.localStorage['SERVER_PASS']
+        );
+    }
+
+});
 
 </script>
 </html>

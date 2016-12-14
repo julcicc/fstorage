@@ -3,12 +3,22 @@ require("lib.inc.php");
 
 function _forbidden() {
     header('HTTP/1.0 403 Forbidden');
-    die("403 Forbidden");
+    exit;
 }
 
 function _bad_request() {
     header('HTTP/1.0 400 Bad Request');
-    die("400 Bad Request");
+    exit;
+}
+
+function _not_found() {
+    header('HTTP/1.0 404 Not Found');
+    exit;
+}
+
+function _not_modified() {
+    header('Not Modified',true,304);
+    exit;
 }
 
 function _errr_range_request($start, $end, $size) {
@@ -30,15 +40,13 @@ if (!isset($_REQUEST['l'])) {
 $location = trim($_REQUEST['l']);
 
 if (!$location) {
-    header('HTTP/1.0 400 Bad Request');
-    die("400 Bad Request");
+    _bad_request();
 }
 
 $api = new FStorage_API();
 $obj = $api->fetchLocation($location);
 if (!$obj) {
-    header('HTTP/1.0 404 Not Found');
-    die("404 Not Found");
+    _not_found();
 }
 
 $file = $api->getObjectFile($obj['bucket_name'], $location);
@@ -50,18 +58,18 @@ $ifNoneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ?  stripslashes($_SERVER['H
 
 if( ( ($clientLastModifiedSeconds) && ($lastModifiedSeconds <= $clientLastModifiedSeconds ) )
      || ($ifNoneMatch && $ifNoneMatch == $etag) ) {
-       header('Not Modified',true,304);
-       exit;
+     _not_modified();
 }
-
 ob_get_clean();
+$fp = @fopen($file, 'rb');
+if (!$fp) {
+    _not_found();
+}
 
 //cache headers
 header('Last-Modified: '. date('r', $lastModifiedSeconds));
 header("ETag: $etag");
 header("Content-Type: " . $obj['content_type'] );
-
-$fp = fopen($file, 'rb');
 //ranges header
 $start = 0;
 $size = intval($obj['content_size']);
