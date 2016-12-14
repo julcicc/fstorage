@@ -124,6 +124,8 @@ class API_Client {
         //XXX end debug
 
 		curl_setopt($ch, CURLOPT_URL, $this->url );
+        curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 3 );
+        curl_setopt($ch, CURLOPT_TIMEOUT, 10);
     	curl_setopt($ch, CURLOPT_POST, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
@@ -136,7 +138,6 @@ class API_Client {
     private function setUploadOptions($ch, $fileSize) {
     //    curl_setopt($ch, CURLOPT_HTTPHEADER, array("Content-Type:multipart/form-data"));
         curl_setopt($ch, CURLOPT_INFILESIZE, $fileSize);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 120); // 2 minutes
     }
 
     /**

@@ -1,7 +1,7 @@
 <?php
 
 $CLIENT_FILE = dirname(__FILE__) . "/../fstorage_client/fstorage_client.php";
-$SERVER = "http://fstorage.julian.dev/fstorage_server/api.php";
+$SERVER = "http://localhost/~julian/fstorage/fstorage_server/api.php"; //http://fstorage.julian.dev/fstorage_server/api.php";
 $USER = "test";
 $PASS = "test";
 $REMOVE_OBJECTS = false;
@@ -16,9 +16,9 @@ file_put_contents($fname,"Simple text file");
 
 //big file
 $bigFile = "/tmp/fstorage-temp-big.bin";
-//$cmd = "/bin/dd of=$bigFile bs=50m count=1 if=/dev/random";
+$cmd = "/bin/dd of=$bigFile bs=50m count=1 if=/dev/random";
 //echo "=== $cmd === ";
-//system($cmd);
+system($cmd);
 $bigMD5 = md5_file($bigFile);
 
 $rand_name = "random_" . rand(1, 10000); 

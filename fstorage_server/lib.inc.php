@@ -315,6 +315,16 @@ class FStorage_API {
         $destFile = $this->getObjectFile($bucket, $obj['fs_location']);
         $metaFile = $this->getObjectMetaFile($bucket, $obj['fs_location']);
 
+        if (!is_writable($destDir)) {
+            //no dirs?
+            if (!is_dir($destDir) && !mkdir($destDir, 0777, true)) {
+                return __error("COULD_NOT_CREATE_FOLDER","Please check permissions of FSTORAGE_ROOT");
+            }
+            elseif(!is_writable($destDir)) {
+                return __error("COULD_NOT_WRITE_FILE","Could not write file '$destFile'");
+            }
+        }
+
         //have fs location and record
         //write data
         if ($content===false) { //file upload
