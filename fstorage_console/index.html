@@ -63,7 +63,7 @@ margin-bottom: 30px;
 <div class="row">
     <div class="col-md-8">
         <div class="btn-toolbar" role="toolbar">
-            <button type="button" class="btn btn-default">+ Bucket</button>
+            <button type="button" class="btn btn-default" onClick="createBucket()">+ Bucket</button>
             <button type="button" class="btn btn-default">+ Object</button>
             <button type="button" class="btn btn-danger" onClick="deleteEvent()">- Delete</button>
             <button type="button" class="btn btn-danger" onClick="logout()">Logout</button>
@@ -212,6 +212,9 @@ function checkAndStart(server, user, pass) {
             $('#serverDisplay').html("");
 		}
 	} );
+}
+
+function createBucket() {
 }
 
 function deleteEvent() {
