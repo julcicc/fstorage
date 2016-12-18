@@ -5,50 +5,41 @@
     <link rel="stylesheet" href="bootstrap.min.css">
 <style>
 html {
-margin: 10px 10px 10px 10px;
+position:relative;
+min-height: 100%;
 }
 #panel {
     display:none;
 }
-#noServerAlert {
-    display:none;
-}
-#errorAlert{
-    display:none;
-}
-
 .bucketSelected{
-    font-size:110%;
-    color:black;
-    font-weight:bold;
+    color:white;
+    background-color:black;
 }
 
-.bucketSelected::before {
-    content: "> ";
-
-}
-
-a.bucketLink:hover, a.bucketLink:active, a.bucketLink:visited {
-    text-decoration:none;
-}
-
-a.bucketLink {
+.bucketLink {
     cursor:pointer;
 }
+
+body {
+margin-bottom: 30px;
+}
+
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 30px;
+  background-color: #f5f5f5;
+}
+
 
 </style>
 
 </head>
 <body>
-<div class="alert alert-danger" role="alert" id="errorAlert">
-Error contacting server
-</div>
-<div class="alert alert-danger" role="alert" id="noServerAlert">
-Server not available
-</div>
 <div class="row" id="form">
 	<div class="col-md-4">
-
 <form onSubmit="checkAndStart()">
   <div class="form-group">
     <label for="inputServerUrl">Server URL</label>
@@ -67,14 +58,14 @@ Server not available
 	</div>
 	<div class="col-md-8">&nbsp;</div>
 </div>
-<div id="panel">
 
+<div id="panel" class"container">
 <div class="row">
     <div class="col-md-8">
         <div class="btn-toolbar" role="toolbar">
             <button type="button" class="btn btn-default">+ Bucket</button>
             <button type="button" class="btn btn-default">+ Object</button>
-            <button type="button" class="btn btn-danger">- Delete</button>
+            <button type="button" class="btn btn-danger" onClick="deleteEvent()">- Delete</button>
             <button type="button" class="btn btn-danger" onClick="logout()">Logout</button>
         </div>
     </div>
@@ -86,19 +77,15 @@ Server not available
     <br>
     <div class="col-md-2">
     <table class="table condensed">
+        <caption>Buckets</caption>
         <tbody id="bucketRows">
-            <thead>
-                <tr>
-                    <th></th>
-                    <th>Bucket</th>
-                </tr>
-            </thead>
             <tbody id="bucketList">
             </tbody>
     </table>
     </div>
     <div class="col-md-10">
     <table class="table condensed table-striped">
+        <caption>Objects</caption>
         <tbody id="objectRows">
             <thead>
                 <tr>
@@ -121,18 +108,22 @@ Server not available
     </div>
 </div>
 </div>
+
 </body>
 <script id="bucketRowsTmpl" type="x-tmpl-mustache">
 {{#result}}
 <tr>
-    <td><input type='checkbox'></td>
-<td><small><a class="bucketLink" onClick="selectBucket(this,'{{bucket_name}}','{{bucket_description}}')">{{bucket_name}}</a></small></td></tr>
+    <td><input type="checkbox" value="{{bucket_name}}" class="removeBucket"></td>
+    <td class="bucketLink" onClick="selectBucket(this,'{{bucket_name}}','{{bucket_description}}')">
+        <small>{{bucket_name}}</small>
+    </td>
+</tr>
 {{/result}}
 </script>
 <script id="objectRowsTmpl" type="x-tmpl-mustache">
 {{#result}}
 <tr>
-    <td><input type='checkbox'></td>
+    <td><input type='checkbox' value="{{key}}" class="removeObject"></td>
     <td><a href="{{url}}">{{key}}</a></td>
     <td><small>{{sizeFormatted}}</small></td>
     <td>{{contentType}}</td>
@@ -150,6 +141,7 @@ SERVER_USER = "";
 SERVER_PASS = "";
 
 CURRENT_OBJECTS = null;
+CURRENT_BUCKET = null;
 function mergeData(targetSelector, templateName, data, finishCB) {
             if ((typeof targetSelector !== "string") ||
                (typeof templateName !== "string") ||
@@ -166,6 +158,14 @@ function mergeData(targetSelector, templateName, data, finishCB) {
             if(finishCB) finishCB()
 }
 
+function waitDialog(msg) {
+	var dialog = bootbox.dialog({
+		message: '<p class="text-center">' + msg + '</p>',
+		closeButton: false
+	});
+	return dialog;
+}
+
 function fsAPI(name,param) {
 	var myParams = { "user" : SERVER_USER, "pass" : SERVER_PASS, "method" : name }
 	if (param) for ( key in param ) {
@@ -173,7 +173,7 @@ function fsAPI(name,param) {
 	}
 
 	return $.ajax({url:SERVER_URL, data:myParams, error: function(xhr,ajaxOptions,thrownError){
-		$('#errorAlert').show();
+        bootbox.alert("Error contacting server ...");
 	}});
 }
 
@@ -204,31 +204,105 @@ function checkAndStart(server, user, pass) {
 			$('#panel').hide();
 			$('#form').show();
             if (data && data.errorText) {
-			    $('#noServerAlert').html(data.errorText);
+                bootbox.alert("Could not connect to server. Error is: " + data.errorText);
             }
-			$('#noServerAlert').show();
+            else {
+                bootbox.alert("Could not connect to server. Unknown error");
+            }
             $('#serverDisplay').html("");
 		}
 	} );
 }
 
+function deleteEvent() {
+    var bucketsToRemove = [];
+    var objectsToRemove= [];
+    $("input.removeBucket").each(function(){
+        if (this.checked) bucketsToRemove.push(this.value);
+    });
+    $("input.removeObject").each(function(){
+        if (this.checked) objectsToRemove.push(this.value);
+    });
+
+	var checkBuckets = true;
+	if (objectsToRemove.length>0) {
+		checkBuckets = false;
+    	bootbox.confirm("Removing selected objects. Sure?", function(result){
+			if (result) {
+				ajaxResults = [];
+				var dialog = waitDialog("Removing...");
+				for (var i = 0; i < objectsToRemove.length; i++) {
+					ajaxResults.push( fsAPI("removeObject", {"bucket":CURRENT_BUCKET, "key": objectsToRemove[i]}) )
+				}
+
+				$.when.apply($, ajaxResults ).done(function(){
+					selectBucket(null,CURRENT_BUCKET);
+					dialog.modal('hide');
+					var errors = [];
+					for (var i = 0; i < arguments.length; i++) {
+						if (arguments[i].status && arguments[i].status == "error") {
+							errors.push(arguments[i].errorText);
+						}
+					}
+        			if (errors.length>0) bootbox.alert("Errors removing: " + errors.join(", ") );
+				});
+			}
+		});
+	}
+
+	if (checkBuckets && bucketsToRemove.length>0) {
+    	bootbox.confirm("Removing selected buckets. Sure?", function(result){
+			if (result) {
+				ajaxResults = [];
+				var dialog = waitDialog("Removing...");
+				for (var i = 0; i < bucketsToRemove.length; i++) {
+					ajaxResults.push( fsAPI("removeBucket", {"name":bucketsToRemove[i]}) );
+				}
+
+				$.when.apply($, ajaxResults ).done(function(){
+					start();
+					dialog.modal('hide');
+					var errors = [];
+					for (var i = 0; i < arguments.length; i++) {
+						if (arguments[i].status && arguments[i].status == "error") {
+							errors.push(arguments[i].errorText);
+						}
+					}
+        			if (errors.length>0) bootbox.alert("Errors removing: " + errors.join(", ") );
+				});
+			}
+		});
+	}
+}
+
 function start() {
+    data = { result: [] };
+    $('#noObjects').show();
+    mergeData("#objectRows","objectRowsTmpl",data);
+
 	fsAPI("listBuckets").done( function(data){
 		mergeData("#bucketRows","bucketRowsTmpl", data);
 	});
 }
 
 function logout() {
-    window.localStorage.removeItem("SERVER_URL");
-    window.localStorage.removeItem("SERVER_USER");
-    window.localStorage.removeItem("SERVER_PASS");
-    SERVER_URL = SERVER_USER = SERVER_PASS = "";
-    location.reload();
+    bootbox.confirm("Logging out... sure?", function(result){ 
+        if (result) {
+            window.localStorage.removeItem("SERVER_URL");
+            window.localStorage.removeItem("SERVER_USER");
+            window.localStorage.removeItem("SERVER_PASS");
+            SERVER_URL = SERVER_USER = SERVER_PASS = "";
+            document.location.reload();
+        }
+    });
 }
 
 function selectBucket(obj,bucketName) {
-    $('.bucketLink').removeClass("bucketSelected");
-    $(obj).addClass("bucketSelected");
+	CURRENT_BUCKET = bucketName;
+	if (obj) {
+    	$('.bucketLink').removeClass("bucketSelected");
+    	$(obj).addClass("bucketSelected");
+	}
 
     $('#noObjects').hide();
     fsAPI("listObjects", {"bucket":bucketName,"search":"*"}).done( function(data){
