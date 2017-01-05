@@ -402,6 +402,7 @@ class API_Client {
         if (ob_get_level()) {
             ob_end_clean();
         }
+        header_remove();
 
         $headers = $this->headURL($url);
 
