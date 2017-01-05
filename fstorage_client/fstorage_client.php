@@ -80,6 +80,53 @@ class Result_Objects {
  * Provides access to all public apis of FStorage server
  */
 class API_Client {
+
+    /**
+     * @ignore
+     */
+    private static $http_codes = array(
+                                  100=>"Continue"
+                                  ,101=>"Switching Protocols"
+                                  ,200=>"OK"
+                                  ,201=>"Created"
+                                  ,202=>"Accepted"
+                                  ,203=>"Non-Authoritative Information"
+                                  ,204=>"No Content"
+                                  ,205=>"Reset Content"
+                                  ,206=>"Partial Content"
+                                  ,300=>"Multiple Choices"
+                                  ,301=>"Moved Permanently"
+                                  ,302=>"Found"
+                                  ,303=>"See Other"
+                                  ,304=>"Not Modified"
+                                  ,305=>"Use Proxy"
+                                  ,306=>"(Unused)"
+                                  ,307=>"Temporary Redirect"
+                                  ,400=>"Bad Request"
+                                  ,401=>"Unauthorized"
+                                  ,402=>"Payment Required"
+                                  ,403=>"Forbidden"
+                                  ,404=>"Not Found"
+                                  ,405=>"Method Not Allowed"
+                                  ,406=>"Not Acceptable"
+                                  ,407=>"Proxy Authentication Required"
+                                  ,408=>"Request Timeout"
+                                  ,409=>"Conflict"
+                                  ,410=>"Gone"
+                                  ,411=>"Length Required"
+                                  ,412=>"Precondition Failed"
+                                  ,413=>"Request Entity Too Large"
+                                  ,414=>"Request-URI Too Long"
+                                  ,415=>"Unsupported Media Type"
+                                  ,416=>"Requested Range Not Satisfiable"
+                                  ,417=>"Expectation Failed"
+                                  ,500=>"Internal Server Error"
+                                  ,501=>"Not Implemented"
+                                  ,502=>"Bad Gateway"
+                                  ,503=>"Service Unavailable"
+                                  ,504=>"Gateway Timeout"
+                                  ,505=>"HTTP Version Not Supported"
+                                 );
     /**
      * @ignore
      */
@@ -367,20 +414,26 @@ class API_Client {
      * Executes a HEAD command on the given object URL and returns the headers
      *
      * @param string $url   Object URL
+     * @param array  $headers Optional headers
      * @return array    An assoc array with key value for each header
      */
-	public function headURL($url) {
+	public function headURL($url, $headers = null) {
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_URL, $this->authURL($url));
 		curl_setopt($ch, CURLOPT_NOBODY, true);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_HEADER, true);
+        if ($headers !== null) {
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        }
 		$response = curl_exec($ch);
+        $http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         if ($response === false) return false;
         else {
             $headersString = trim($response);
             $lines = explode("\n", $headersString);
-            $headers = array();
+            $headers = array("HTTP_CODE"=>$http_code,'HTTP_TEXT'=>'');
+            if (isset(static::$http_codes[$http_code])) $headers['HTTP_TEXT']=static::$http_codes[$http_code];
             foreach($lines as $line) {
                 if (strpos($line, "HTTP")===0) {
                     $headers['HTTP'] = $line;
@@ -407,7 +460,13 @@ class API_Client {
         }
         header_remove();
 
-        $headers = $this->headURL($url);
+        $rangeRequest = null;
+        $requestHeaders = null;
+        if (isset($_SERVER['HTTP_RANGE'])) {
+            $rangeRequest = "Range: " . $_SERVER['HTTP_RANGE'];
+            $requestHeaders = array($rangeRequest);
+        }
+        $headers = $this->headURL($url,$requestHeaders);
 
         //now check headers
         if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
@@ -426,14 +485,15 @@ class API_Client {
             }
         }
 
-        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type" );
+        header("HTTP/1.1 {$headers['HTTP_CODE']} {$headers['HTTP_TEXT']}");
+        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type", "Content-Length", "Content-Range" );
         foreach($proxyHeaders as $h) {
-            header("$h: " . $headers[$h]);
+            if (isset($headers[$h])) header("$h: " . $headers[$h]);
         }
 
         $http_options = array("method"=>"GET");
-        if (isset($_SERVER['HTTP_RANGE'])) {
-            $http_options['header'] = "Range: " . $_SERVER['HTTP_RANGE'] . "\r\n";
+        if ($rangeRequest) {
+            $http_options['header'] = $rangeRequest . "\r\n";
         }
 
         //check ranges and call fsockopen

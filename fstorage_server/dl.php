@@ -74,7 +74,8 @@ header("Content-Type: " . $obj['content_type'] );
 $start = 0;
 $size = intval($obj['content_size']);
 $end = $size - 1;
-header("Accept-Ranges: 0-".$end);
+header("Accept-Ranges: bytes");
+
 if (isset($_SERVER['HTTP_RANGE'])) {
     list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
     if (strpos($range, ',') !== false) {
@@ -105,7 +106,6 @@ if (isset($_SERVER['HTTP_RANGE'])) {
 else {
     header("Content-Length: " . $obj['content_size'] );
 }
-
 
 fpassthru($fp);
 exit;
