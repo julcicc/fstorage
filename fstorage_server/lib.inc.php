@@ -269,7 +269,7 @@ class FStorage_API {
             return __success($this->formatObject($row));
         }
         else {
-		    return __error("OBJECT_NOT_FOUND", "Object not found ($bucket @ $key)");
+		    return __error("OBJECT_NOT_FOUND", "Object not found ($bucket @ $key");
         }
 	}
 
@@ -355,7 +355,7 @@ class FStorage_API {
     public function removeObject($bucket, $key) {
         $obj = $this->fetchBucketKey($bucket, $key);
         if (!$obj) {
-            return __error("OBJECT_NOT_EXISTS","Object $bucket @ $key does not exists");
+            return __error("OBJECT_NOT_EXISTS","Object $bucket @ $key does not exists");
         }
 
         //remove from file system
