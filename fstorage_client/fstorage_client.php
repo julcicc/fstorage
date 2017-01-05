@@ -1,5 +1,8 @@
 <?
 namespace FStorage;
+if (!defined("__FSTORAGE_CLIENT_PHP__")) {
+
+    define("__FSTORAGE_CLIENT_PHP__",1);
 
 /**
  * Generic result for API calls
@@ -469,4 +472,5 @@ class API_Client {
     public function saveURL($url, $filename) {
         return copy($this->authURL($url), $filename);
     }
+}
 }
