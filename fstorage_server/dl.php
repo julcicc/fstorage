@@ -67,7 +67,7 @@ if (!$fp) {
 }
 
 //cache headers
-header('Last-Modified: '. date('r', $lastModifiedSeconds));
+header('Last-Modified: '. gmdate('r', $lastModifiedSeconds));
 header("ETag: $etag");
 header("Content-Type: " . $obj['content_type'] );
 //ranges header
