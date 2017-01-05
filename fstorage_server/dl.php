@@ -23,7 +23,7 @@ function _not_modified() {
 
 function _errr_range_request($start, $end, $size) {
     header('HTTP/1.1 416 Requested Range Not Satisfiable');
-    header("Content-Range: bytes $this->start-$this->end/$this->size");
+    header("Content-Range: bytes $start-$end/$size");
     exit;
 }
 
@@ -86,7 +86,7 @@ if (isset($_SERVER['HTTP_RANGE'])) {
     }else{
         $range = explode('-', $range);
         $c_start = $range[0];
-        $c_end = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $c_end;
+        $c_end = (isset($range[1]) && is_numeric($range[1])) ? $range[1] : $end;
     }
 
     $c_end = ($c_end > $end) ? $end : $c_end;
