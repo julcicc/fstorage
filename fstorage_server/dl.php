@@ -81,12 +81,19 @@ if (isset($requestHeaders['If-Unmodified-Since']) &&
 }
 
 ob_get_clean();
-$fp = @fopen($file, 'rb');
-if (!$fp) {
-    _not_found();
+$resourceFp = null;
+
+//AVOID PROCESSING HEAD METHOD we detect this by leaving the resource file 
+//pointer to null
+if (!(isset($_SERVER['REQUEST_METHOD']) && $_SERVER['REQUEST_METHOD']=='HEAD')) { 
+    $resourceFp = @fopen($file, 'rb');
+    if (!$resourceFp) {
+        _not_found();
+    }
 }
 
 //cache headers
+header('X-Fstorage-Info: ok');
 header('Last-Modified: '. gmdate('r', $lastModifiedSeconds));
 header("ETag: $etag");
 header("Content-Type: " . $obj['content_type'] );
@@ -118,7 +125,7 @@ if (isset($_SERVER['HTTP_RANGE'])) {
     $start = $c_start;
     $end = $c_end;
     $length = $end - $start + 1;
-    fseek($fp, $start);
+    if($resourceFp) fseek($resourceFp, $start);
     header('HTTP/1.1 206 Partial Content');
     header("Content-Length: ".$length);
     header("Content-Range: bytes $start-$end/".$size);
@@ -127,5 +134,8 @@ else {
     header("Content-Length: " . $obj['content_size'] );
 }
 
-fpassthru($fp);
+//do not process full if HEAD method Only
+if($resourceFp) {
+    fpassthru($resourceFp);
+}
 exit;
