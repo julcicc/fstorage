@@ -460,40 +460,25 @@ class API_Client {
         }
         header_remove();
 
-        $rangeRequest = null;
-        $requestHeaders = null;
-        if (isset($_SERVER['HTTP_RANGE'])) {
-            $rangeRequest = "Range: " . $_SERVER['HTTP_RANGE'];
-            $requestHeaders = array($rangeRequest);
+        $proxyRequestHeaders = array();
+        $myHeaders = apache_request_headers();
+        $filterHeaders = array('Range','If-Match','If-None-Match'
+                               ,'If-Modified-Since','If-Unmodified-Since'
+                               , 'If-Range', 'Cache-Control');
+        foreach($filterHeaders as $k) {
+            if (isset($myHeaders[$k])) $proxyRequestHeaders[] = $k . ': ' . $myHeaders[$k];
         }
-        $headers = $this->headURL($url,$requestHeaders);
-
-        //now check headers
-        if (isset($_SERVER['HTTP_IF_NONE_MATCH'])) {
-            if ($headers['ETag']==$_SERVER['HTTP_IF_NONE_MATCH']) {
-                header('Not Modified',true,304);
-                exit;
-            }
-        }
-
-        if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE'])) {
-            $clientTM = strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']);
-            $fileTM = strtotime($headers['Last-Modified']);
-            if ($clientTM && $fileTM <= $clientTM) {
-                header('Not Modified',true,304);
-                exit;
-            }
-        }
+        $headers = $this->headURL($url,$proxyRequestHeaders);
 
         header("HTTP/1.1 {$headers['HTTP_CODE']} {$headers['HTTP_TEXT']}");
-        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type", "Content-Length", "Content-Range" );
+        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type", "Content-Length", "Content-Range", "Cache-control" );
         foreach($proxyHeaders as $h) {
             if (isset($headers[$h])) header("$h: " . $headers[$h]);
         }
 
         $http_options = array("method"=>"GET");
-        if ($rangeRequest) {
-            $http_options['header'] = $rangeRequest . "\r\n";
+        if (count($proxyRequestHeaders)>0) {
+            $http_options['header'] = implode("\r\n", $proxyRequestHeaders);
         }
 
         //check ranges and call fsockopen
