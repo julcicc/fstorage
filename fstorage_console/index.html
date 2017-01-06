@@ -215,6 +215,19 @@ function checkAndStart(server, user, pass) {
 }
 
 function createBucket() {
+    var dialog = bootbox.dialog({
+        title: 'New Bucket',
+        message : '<form id="newBucketFrm" name="newBucketFrm" onSubmit="newBucketSubmit()">Name <input required type="text" name="bucket_name"><br>Description <input type="text" name="bucket_description"></form>',
+        buttons: {
+            "OK" : function() {
+                //$('#newBucketFrm').submit();
+            }
+        }
+    });
+}
+
+function newBucketSubmit(e) {
+    top.console.log("OK");
 }
 
 function deleteEvent() {
