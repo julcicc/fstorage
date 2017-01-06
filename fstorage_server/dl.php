@@ -12,7 +12,7 @@ function _bad_request() {
 }
 
 function _not_found() {
-    header('HTTP/1.0 404 Not Found');
+    header('HTTP/1.1 404 Not Found');
     exit;
 }
 
@@ -21,9 +21,14 @@ function _not_modified() {
     exit;
 }
 
-function _errr_range_request($start, $end, $size) {
+function _precondition_failed() {
+    header('HTTP/1.1 412 Precondition Failed');
+    exit;
+}
+
+function _err_range_request($start, $end, $size) {
     header('HTTP/1.1 416 Requested Range Not Satisfiable');
-    header("Content-Range: bytes $start-$end/$size");
+    if ($start>0) header("Content-Range: bytes $start-$end/$size");
     exit;
 }
 
@@ -53,13 +58,28 @@ $file = $api->getObjectFile($obj['bucket_name'], $location);
 
 $lastModifiedSeconds = strtotime($obj['date_modified']);
 $etag = md5($obj['fs_location']) . $obj['content_md5'];
-$clientLastModifiedSeconds = strtotime(isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) ? trim($_SERVER['HTTP_IF_MODIFIED_SINCE']) : 0);
-$ifNoneMatch = isset($_SERVER['HTTP_IF_NONE_MATCH']) ?  stripslashes($_SERVER['HTTP_IF_NONE_MATCH']) : 0;
+$requestHeaders = apache_request_headers();
 
-if( ( ($clientLastModifiedSeconds) && ($lastModifiedSeconds <= $clientLastModifiedSeconds ) )
-     || ($ifNoneMatch && $ifNoneMatch == $etag) ) {
+if (isset($requestHeaders['If-None-Match']) && $requestHeaders['If-None-Match']==$etag) {
      _not_modified();
 }
+
+if (isset($requestHeaders['If-Match']) && $requestHeaders['If-Match']!=$etag
+    && isset($requestHeaders['Range'])) {
+     _err_range_request(0,0,0);
+}
+
+if (isset($requestHeaders['If-Modified-Since']) &&
+    ($lastModifiedSeconds < strtotime( trim($requestHeaders['If-Modified-Since']) ))) {
+     _not_modified();
+}
+
+if (isset($requestHeaders['If-Unmodified-Since']) &&
+    ($lastModifiedSeconds >= strtotime( trim($requestHeaders['If-Unmodified-Since'])))
+     && isset($requestHeaders['Range'])) {
+    _precondition_failed();
+}
+
 ob_get_clean();
 $fp = @fopen($file, 'rb');
 if (!$fp) {
@@ -79,7 +99,7 @@ header("Accept-Ranges: bytes");
 if (isset($_SERVER['HTTP_RANGE'])) {
     list(, $range) = explode('=', $_SERVER['HTTP_RANGE'], 2);
     if (strpos($range, ',') !== false) {
-        _errr_range_request($start, $end, $size);
+        _err_range_request($start, $end, $size);
     }
 
     if ($range == '-') {
@@ -92,7 +112,7 @@ if (isset($_SERVER['HTTP_RANGE'])) {
 
     $c_end = ($c_end > $end) ? $end : $c_end;
     if ($c_start > $c_end || $c_start > $size - 1 || $c_end >= $size) {
-        _errr_range_request($start, $end, $size);
+        _err_range_request($start, $end, $size);
     }
 
     $start = $c_start;
