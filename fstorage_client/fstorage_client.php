@@ -471,7 +471,7 @@ class API_Client {
         $headers = $this->headURL($url,$proxyRequestHeaders);
 
         header("HTTP/1.1 {$headers['HTTP_CODE']} {$headers['HTTP_TEXT']}");
-        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type", "Content-Length", "Content-Range", "Cache-control" );
+        $proxyHeaders = array( "Last-Modified", "ETag", "Accept-Ranges", "Content-Type", "Content-Length", "Content-Range", "Cache-control", "X-Fstorage-Info" );
         foreach($proxyHeaders as $h) {
             if (isset($headers[$h])) header("$h: " . $headers[$h]);
         }
