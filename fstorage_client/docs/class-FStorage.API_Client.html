@@ -95,7 +95,7 @@
 		<b>Namespace:</b> <a href="namespace-FStorage.html">FStorage</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#79-520" title="Go to source code">fstorage_client.php</a>
+			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#79-526" title="Go to source code">fstorage_client.php</a>
 		<br>
 	</div>
 
@@ -562,7 +562,7 @@ You can call this method with an uploaded file. as in $_FILES['myfile']['tmp_nam
 
 		<td class="name"><div>
 		<a class="anchor" href="#_downloadObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#397-411" title="Go to source code">downloadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#397-412" title="Go to source code">downloadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$attachment</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Download object to browser (handles HTTP headers, and download). It will be finish
@@ -580,6 +580,8 @@ script execution</p>
 					<dd>Bucket name</dd>
 					<dt><var>$key</var></dt>
 					<dd>Object key (may contain / and other special characters, use at your own risk)</dd>
+					<dt><var>$attachment</var></dt>
+					<dd>If specified content will be download as attachment with this name</dd>
 				</dl></div>
 
 
@@ -601,7 +603,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_headURL">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#413-447" title="Go to source code">headURL</a>( <span>string <var>$url</var></span>, <span>array <var>$headers</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#414-448" title="Go to source code">headURL</a>( <span>string <var>$url</var></span>, <span>array <var>$headers</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Executes a HEAD command on the given object URL and returns the headers</p>
@@ -642,7 +644,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_downloadURL">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#449-491" title="Go to source code">downloadURL</a>( <span>string <var>$url</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#450-497" title="Go to source code">downloadURL</a>( <span>string <var>$url</var></span>, <span>string <var>$attachment</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Download object to browser directly (handles HTTP headers, and download). It will be finish
@@ -658,6 +660,8 @@ script execution</p>
 				<div class="list"><dl>
 					<dt><var>$url</var></dt>
 					<dd>Object URL</dd>
+					<dt><var>$attachment</var></dt>
+					<dd>If specified content will be download as attachment with this name</dd>
 				</dl></div>
 
 
@@ -679,7 +683,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_saveObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#493-508" title="Go to source code">saveObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$filename</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#499-514" title="Go to source code">saveObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$filename</var></span> )</code>
 
 		<div class="description short">
 			<p>Save object to file</p>
@@ -722,7 +726,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_saveURL">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#510-519" title="Go to source code">saveURL</a>( <span>string <var>$url</var></span>, <span>string <var>$filename</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#516-525" title="Go to source code">saveURL</a>( <span>string <var>$url</var></span>, <span>string <var>$filename</var></span> )</code>
 
 		<div class="description short">
 			<p>Save object to file</p>
