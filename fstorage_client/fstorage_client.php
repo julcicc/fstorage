@@ -400,13 +400,14 @@ class API_Client {
      *
      * @param string $bucket Bucket name
      * @param string $key    Object key (may contain / and other special characters, use at your own risk)
+     * @param string $attachment If specified content will be download as attachment with this name
      * @return void
      */
-	public function downloadObject($bucket, $key) {
+	public function downloadObject($bucket, $key, $attachment = false) {
         $obj = $this->getObject($bucket, $key);
         if (is_object($obj) && $obj->status == "ok") {
             $url = $obj->result->url;
-            $this->downloadURL($url);
+            $this->downloadURL($url, $attachment);
         }
     }
 
@@ -451,9 +452,10 @@ class API_Client {
      * script execution
      *
      * @param string $url Object URL
+     * @param string $attachment If specified content will be download as attachment with this name
      * @return void
      */
-    public function downloadURL($url) {
+    public function downloadURL($url, $attachment = false) {
 
         if (ob_get_level()) {
             ob_end_clean();
@@ -475,6 +477,10 @@ class API_Client {
         foreach($proxyHeaders as $h) {
             if (isset($headers[$h])) header("$h: " . $headers[$h]);
         }
+        if ($attachment) {
+            header('Content-Disposition: attachment; filename="' . $attachment . '"');
+        }
+
 
         $http_options = array("method"=>"GET");
         if (count($proxyRequestHeaders)>0) {
