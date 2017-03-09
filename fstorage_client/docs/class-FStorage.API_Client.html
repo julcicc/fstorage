@@ -95,7 +95,7 @@
 		<b>Namespace:</b> <a href="namespace-FStorage.html">FStorage</a><br>
 		
 
-			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#79-526" title="Go to source code">fstorage_client.php</a>
+			<b>Located at</b> <a href="source-class-FStorage.API_Client.html#79-540" title="Go to source code">fstorage_client.php</a>
 		<br>
 	</div>
 
@@ -378,6 +378,49 @@
 		</div>
 		</div></td>
 	</tr>
+	<tr data-order="renameObject" id="_renameObject">
+
+		<td class="attributes"><code>
+			 public 
+
+			<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code>
+			
+			</code>
+		</td>
+
+		<td class="name"><div>
+		<a class="anchor" href="#_renameObject">#</a>
+		<code><a href="source-class-FStorage.API_Client.html#326-338" title="Go to source code">renameObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$oldKey</var></span>, <span>string <var>$newKey</var></span> )</code>
+
+		<div class="description short">
+			<p>Rename object (new object key must not exists)</p>
+		</div>
+
+		<div class="description detailed hidden">
+			<p>Rename object (new object key must not exists)</p>
+
+
+				<h4>Parameters</h4>
+				<div class="list"><dl>
+					<dt><var>$bucket</var></dt>
+					<dd>Bucket name</dd>
+					<dt><var>$oldKey</var></dt>
+					<dd>Old Object key (may contain / and other special characters, use at your own risk)</dd>
+					<dt><var>$newKey</var></dt>
+					<dd>New Object key (may contain / and other special characters, use at your own risk)</dd>
+				</dl></div>
+
+				<h4>Returns</h4>
+				<div class="list">
+					<code><a href="class-FStorage.API_Result.html">FStorage\API_Result</a></code><br>The new object <code><a href="class-FStorage.Result_Objects.html">FStorage\Result_Objects</a></code>
+				</div>
+
+
+
+
+		</div>
+		</div></td>
+	</tr>
 	<tr data-order="putObject" id="_putObject">
 
 		<td class="attributes"><code>
@@ -390,7 +433,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_putObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#326-339" title="Go to source code">putObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$content</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#340-353" title="Go to source code">putObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$content</var></span> )</code>
 
 		<div class="description short">
 			<p>Put object (if object already exists it <strong>WILL be replaced</strong>) with some content (bytes as argument)</p>
@@ -435,7 +478,7 @@
 
 		<td class="name"><div>
 		<a class="anchor" href="#_uploadObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#341-370" title="Go to source code">uploadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$localFile</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#355-384" title="Go to source code">uploadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$contentType</var></span>, <span>string <var>$localFile</var></span> )</code>
 
 		<div class="description short">
 			<p>Upload object (if object already exists it <strong>WILL be replaced</strong>), from a localFile.
@@ -482,7 +525,7 @@ You can call this method with an uploaded file. as in $_FILES['myfile']['tmp_nam
 
 		<td class="name"><div>
 		<a class="anchor" href="#_removeObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#372-383" title="Go to source code">removeObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#386-397" title="Go to source code">removeObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span> )</code>
 
 		<div class="description short">
 			<p>Remove object from DB and storage (cannot be undone)</p>
@@ -523,7 +566,7 @@ You can call this method with an uploaded file. as in $_FILES['myfile']['tmp_nam
 
 		<td class="name"><div>
 		<a class="anchor" href="#_pruneBucket">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#385-395" title="Go to source code">pruneBucket</a>( <span>string <var>$bucket</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#399-409" title="Go to source code">pruneBucket</a>( <span>string <var>$bucket</var></span> )</code>
 
 		<div class="description short">
 			<p>Removes any empty folders inside the bucket (admin)</p>
@@ -562,7 +605,7 @@ You can call this method with an uploaded file. as in $_FILES['myfile']['tmp_nam
 
 		<td class="name"><div>
 		<a class="anchor" href="#_downloadObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#397-412" title="Go to source code">downloadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$attachment</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#411-426" title="Go to source code">downloadObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$attachment</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Download object to browser (handles HTTP headers, and download). It will be finish
@@ -603,7 +646,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_headURL">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#414-448" title="Go to source code">headURL</a>( <span>string <var>$url</var></span>, <span>array <var>$headers</var> = <span class="php-keyword1">null</span></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#428-462" title="Go to source code">headURL</a>( <span>string <var>$url</var></span>, <span>array <var>$headers</var> = <span class="php-keyword1">null</span></span> )</code>
 
 		<div class="description short">
 			<p>Executes a HEAD command on the given object URL and returns the headers</p>
@@ -644,7 +687,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_downloadURL">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#450-497" title="Go to source code">downloadURL</a>( <span>string <var>$url</var></span>, <span>string <var>$attachment</var> = <span class="php-keyword1">false</span></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#464-511" title="Go to source code">downloadURL</a>( <span>string <var>$url</var></span>, <span>string <var>$attachment</var> = <span class="php-keyword1">false</span></span> )</code>
 
 		<div class="description short">
 			<p>Download object to browser directly (handles HTTP headers, and download). It will be finish
@@ -683,7 +726,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_saveObject">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#499-514" title="Go to source code">saveObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$filename</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#513-528" title="Go to source code">saveObject</a>( <span>string <var>$bucket</var></span>, <span>string <var>$key</var></span>, <span>string <var>$filename</var></span> )</code>
 
 		<div class="description short">
 			<p>Save object to file</p>
@@ -726,7 +769,7 @@ script execution</p>
 
 		<td class="name"><div>
 		<a class="anchor" href="#_saveURL">#</a>
-		<code><a href="source-class-FStorage.API_Client.html#516-525" title="Go to source code">saveURL</a>( <span>string <var>$url</var></span>, <span>string <var>$filename</var></span> )</code>
+		<code><a href="source-class-FStorage.API_Client.html#530-539" title="Go to source code">saveURL</a>( <span>string <var>$url</var></span>, <span>string <var>$filename</var></span> )</code>
 
 		<div class="description short">
 			<p>Save object to file</p>
