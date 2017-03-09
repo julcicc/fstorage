@@ -149,6 +149,7 @@ class FStorage_API {
     public function updateBaseObject($obj, $newKey=null) {
         $conn = __getconnection();
         if ($newKey===null) $newKey = $obj['object_key'];
+
         $stmt = $conn->prepare("update objects set date_created=:date_created
             , date_modified=:date_modified
             , content_md5=:content_md5
@@ -157,7 +158,7 @@ class FStorage_API {
             , content_size=:content_size
             , object_key=:new_key
             where bucket_name=:bucket_name and object_key=:object_key");
-        return $stmt->execute(array(
+        if ($stmt->execute(array(
                             ":date_created"=>$obj['date_created']
                             , ":date_modified"=>$obj['date_modified']
                             , ":content_md5"=>$obj['content_md5']
@@ -167,7 +168,15 @@ class FStorage_API {
                             , ':bucket_name'=>$obj['bucket_name']
                             , ':object_key'=>$obj['object_key']
                             , ':new_key'=>$newKey
-                        ));
+                        ))) {
+            return true;
+        }
+        else {
+            print_r($error);
+ 			$error = $stmt->errorInfo();
+            $this->lastError = $error[2];
+            return false;
+        }
     }
 
     public function noop() {
@@ -301,12 +310,16 @@ class FStorage_API {
 
         $metaFile = $this->getObjectMetaFile($bucket, $obj['fs_location']);
 
-        $obj['object_key'] = $newKey;
         $obj['date_modified'] = date('Y-m-d H:i:s');
 
         //write metadata file
         file_put_contents($metaFile,json_encode($obj, JSON_PRETTY_PRINT));
-        $this->updateBaseObject($obj, $newKey);
+        if (!$this->updateBaseObject($obj, $newKey)) {
+            return __error("ERROR_UPDATING_OBJECT", $this->lastError);
+        }
+
+        //this must go here
+        $obj['object_key'] = $newKey;
 
         return __success($this->formatObject($obj));
     }
@@ -390,7 +403,9 @@ class FStorage_API {
 
         //write metadata file
         file_put_contents($metaFile,json_encode($obj, JSON_PRETTY_PRINT));
-        $this->updateBaseObject($obj);
+        if (!$this->updateBaseObject($obj)) {
+            return __error("ERROR_UPDATING_OBJECT", $this->lastError);
+        }
 
         return __success($this->formatObject($obj));
     }

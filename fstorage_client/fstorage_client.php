@@ -324,6 +324,20 @@ class API_Client {
 	}
 
     /**
+     * Rename object (new object key must not exists)
+     *
+     * @param string $bucket Bucket name
+     * @param string $oldKey    Old Object key (may contain / and other special characters, use at your own risk)
+     * @param string $newKey    New Object key (may contain / and other special characters, use at your own risk)
+     * @return API_Result    The new object {@see \FStorage\Result_Objects}
+     */
+	public function renameObject($bucket, $oldKey, $newKey ) {
+		$ch = $this->curl();
+		$this->setParams($ch, $this->getBasicParams("renameObject", array("bucket"=>$bucket,"oldKey"=>$oldKey,"newKey"=>$newKey)));
+		return $this->getResult($ch);
+	}
+
+    /**
      * Put object (if object already exists it **WILL be replaced**) with some content (bytes as argument)
      *
      * @param string $bucket Bucket name
