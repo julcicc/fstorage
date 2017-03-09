@@ -36,6 +36,10 @@ class FStorage_API {
         return preg_match('/^[a-z0-9.\-\_]+$/i', $str);
     }
 
+    private function isValidObjectName($str) {
+        return preg_match('/^[a-z0-9.\-\_\ \/]+$/i', $str);
+    }
+
     public function bucketExists($bucket) {
         $conn = __getconnection();
         $stmt = $conn->prepare("select count(*) as q from buckets where bucket_name=?");
@@ -142,14 +146,16 @@ class FStorage_API {
         return $stmt->execute(array($bucket, $key));
     }
 
-    public function updateBaseObject($obj) {
+    public function updateBaseObject($obj, $newKey=null) {
         $conn = __getconnection();
+        if ($newKey===null) $newKey = $obj['object_key'];
         $stmt = $conn->prepare("update objects set date_created=:date_created
             , date_modified=:date_modified
             , content_md5=:content_md5
             , content_type=:content_type
             , fs_location=:fs_location
             , content_size=:content_size
+            , object_key=:new_key
             where bucket_name=:bucket_name and object_key=:object_key");
         return $stmt->execute(array(
                             ":date_created"=>$obj['date_created']
@@ -160,6 +166,7 @@ class FStorage_API {
                             , ':content_size'=>$obj['content_size']
                             , ':bucket_name'=>$obj['bucket_name']
                             , ':object_key'=>$obj['object_key']
+                            , ':new_key'=>$newKey
                         ));
     }
 
@@ -273,6 +280,37 @@ class FStorage_API {
         }
 	}
 
+    public function renameObject($bucket, $oldKey, $newKey) {
+        //check bucket
+        if (!$this->bucketExists($bucket)) {
+            return __error("INVALID_BUCKET", "Bucket does not exist");
+        }
+
+        //check ojbectname
+        if(!$this->isValidObjectName($newKey)) {
+			return __error("INVALID_OBJECT_NAME", "Only letters, numbers, spaces and - _ /");
+		}
+        $obj = $this->fetchBucketKey($bucket, $oldKey);
+        if (!$obj) {
+            return __error("OBJECT_NOT_EXISTS","Object $bucket @ $oldKey does not exists");
+        }
+
+        if ($this->fetchBucketKey($bucket, $newKey)) {
+            return __error("OBJECT_ALREADY_EXISTS","Object $bucket @ $newKey already exists");
+        }
+
+        $metaFile = $this->getObjectMetaFile($bucket, $obj['fs_location']);
+
+        $obj['object_key'] = $newKey;
+        $obj['date_modified'] = date('Y-m-d H:i:s');
+
+        //write metadata file
+        file_put_contents($metaFile,json_encode($obj, JSON_PRETTY_PRINT));
+        $this->updateBaseObject($obj, $newKey);
+
+        return __success($this->formatObject($obj));
+    }
+
 	public function putObject($bucket, $key, $contentType, $content) {
         return $this->putOrUploadObject($bucket, $key, $contentType, $content);
 	}
@@ -286,6 +324,11 @@ class FStorage_API {
         if (!$this->bucketExists($bucket)) {
             return __error("INVALID_BUCKET", "Bucket does not exist");
         }
+
+        //check ojbectname
+        if(!$this->isValidObjectName($key)) {
+			return __error("INVALID_OBJECT_NAME", "Only letters, numbers, spaces and - _ /");
+		}
         
         //check input file if not content
         if ($content===false) {
