@@ -74,11 +74,13 @@ if (isset($requestHeaders['If-Modified-Since']) &&
      _not_modified();
 }
 
+/*
 if (isset($requestHeaders['If-Unmodified-Since']) &&
     ($lastModifiedSeconds >= strtotime( trim($requestHeaders['If-Unmodified-Since'])))
      && isset($requestHeaders['Range'])) {
     _precondition_failed();
 }
+*/
 
 ob_get_clean();
 $resourceFp = null;
